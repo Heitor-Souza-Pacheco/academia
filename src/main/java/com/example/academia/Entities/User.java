@@ -2,7 +2,7 @@ package com.example.academia.Entities;
 
 import jakarta.persistence.*;
 
-import javax.management.relation.Role;
+
 import java.io.Serializable;
 import java.util.Objects;
 
