@@ -8,5 +8,5 @@ import java.util.List;
 public interface FichaRepository extends JpaRepository<Ficha, Long> {
 
     List<Ficha> findByCategoria(String categoria);
-    List<Ficha> findByTituloContaingIgnoreCase(String titulo);
+    List<Ficha> findByTituloContainingIgnoreCase(String titulo);
 }

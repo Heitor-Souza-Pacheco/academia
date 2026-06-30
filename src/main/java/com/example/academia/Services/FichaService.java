@@ -1,71 +1,123 @@
 package com.example.academia.Services;
 
+import com.example.academia.Dtos.ExercicioRequest;
+import com.example.academia.Dtos.ExercicioResponse;
+import com.example.academia.Dtos.FichaRequest;
+import com.example.academia.Dtos.FichaResponse;
+import com.example.academia.Entities.Exercicio;
 import com.example.academia.Entities.Ficha;
 import com.example.academia.Repositories.FichaRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FichaService {
 
-    @Autowired
     private final FichaRepository fichaRepository;
 
-    public FichaService(FichaRepository fichaRepository) {
-        this.fichaRepository = fichaRepository;
-    }
-
-    //admin
     @Transactional
-    public Ficha criarFicha(Ficha ficha){
+    public FichaResponse criarFicha(FichaRequest request) {
+        Ficha ficha = new Ficha();
+        ficha.setTitulo(request.getTitulo());
+        ficha.setDescricao(request.getDescricao());
+        ficha.setCategoria(request.getCategoria());
         ficha.setData(LocalDate.now());
-        ficha.getExercicios().forEach(ex -> ex.setFicha(ficha));
-        return fichaRepository.save(ficha);
+
+        if (request.getExercicios() != null) {
+            for (ExercicioRequest exReq : request.getExercicios()) {
+                Exercicio exercicio = new Exercicio();
+                exercicio.setNome(exReq.getNome());
+                exercicio.setSeries(exReq.getSeries());
+                exercicio.setRepeticoes(exReq.getRepeticoes());
+                exercicio.setOrdem(exReq.getOrdem());
+                exercicio.setFicha(ficha);
+                ficha.getExercicios().add(exercicio);
+            }
+        }
+
+        Ficha salva = fichaRepository.save(ficha);
+        return toResponse(salva);
     }
 
-    public List<Ficha> listarTodas(){
-        return fichaRepository.findAll();
+    public List<FichaResponse> listarTodas() {
+        return fichaRepository.findAll().stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Ficha> listarPorCategoria(String categoria){
-        return fichaRepository.findByCategoria(categoria);
+    public List<FichaResponse> listarPorCategoria(String categoria) {
+        return fichaRepository.findByCategoria(categoria).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Ficha> buscarPorTitulo(String titulo){
-        return fichaRepository.findByTituloContaingIgnoreCase(titulo);
+    public List<FichaResponse> buscarPorTitulo(String titulo) {
+        return fichaRepository.findByTituloContainingIgnoreCase(titulo).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
-    public Ficha buscarPorId(Long id){
-        return fichaRepository.findById(id)
+    public FichaResponse buscarPorId(Long id) {
+        Ficha ficha = fichaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ficha não encontrada"));
-
+        return toResponse(ficha);
     }
 
-    //admin
     @Transactional
-    public void deletarPorId(Long id){
+    public void deletarPorId(Long id) {
         fichaRepository.deleteById(id);
     }
 
-    //admin
-    public Ficha atualizarFicha(Ficha fichaNova, Long id){
-        Ficha fichaVelha = buscarPorId(id);
+    @Transactional
+    public FichaResponse atualizarFicha(FichaRequest request, Long id) {
+        Ficha ficha = fichaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ficha não encontrada"));
 
-        fichaVelha.setTitulo(fichaNova.getTitulo());
-        fichaVelha.setDescricao(fichaNova.getDescricao());
-        fichaVelha.setCategoria(fichaNova.getCategoria());
-        fichaVelha.setData(fichaNova.getData());
+        ficha.setTitulo(request.getTitulo());
+        ficha.setDescricao(request.getDescricao());
+        ficha.setCategoria(request.getCategoria());
 
-        fichaVelha.getExercicios().clear();
-        fichaNova.getExercicios().forEach(ex -> {
-            ex.setFicha(fichaVelha);
-            fichaVelha.getExercicios().add(ex);
-        });
+        ficha.getExercicios().clear();
+        if (request.getExercicios() != null) {
+            for (ExercicioRequest exReq : request.getExercicios()) {
+                Exercicio exercicio = new Exercicio();
+                exercicio.setNome(exReq.getNome());
+                exercicio.setSeries(exReq.getSeries());
+                exercicio.setRepeticoes(exReq.getRepeticoes());
+                exercicio.setOrdem(exReq.getOrdem());
+                exercicio.setFicha(ficha);
+                ficha.getExercicios().add(exercicio);
+            }
+        }
 
-        return fichaRepository.save(fichaVelha);
+        Ficha salva = fichaRepository.save(ficha);
+        return toResponse(salva);
+    }
+
+    private FichaResponse toResponse(Ficha ficha) {
+        List<ExercicioResponse> exercicios = ficha.getExercicios().stream()
+                .map(ex -> new ExercicioResponse(
+                        ex.getId(),
+                        ex.getNome(),
+                        ex.getSeries(),
+                        ex.getRepeticoes(),
+                        ex.getOrdem()
+                ))
+                .collect(Collectors.toList());
+
+        return new FichaResponse(
+                ficha.getId(),
+                ficha.getTitulo(),
+                ficha.getDescricao(),
+                ficha.getCategoria(),
+                ficha.getData(),
+                exercicios
+        );
     }
 }

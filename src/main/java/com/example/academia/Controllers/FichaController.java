@@ -1,8 +1,10 @@
 package com.example.academia.Controllers;
 
-import com.example.academia.Entities.Ficha;
+import com.example.academia.Dtos.FichaRequest;
+import com.example.academia.Dtos.FichaResponse;
 import com.example.academia.Services.FichaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,40 +18,38 @@ public class FichaController {
     private final FichaService fichaService;
 
     @GetMapping
-    public ResponseEntity<List<Ficha>> listarTodas(){
+    public ResponseEntity<List<FichaResponse>> listarTodas() {
         return ResponseEntity.ok(fichaService.listarTodas());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ficha> buscarPorId(Long id){
+    public ResponseEntity<FichaResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(fichaService.buscarPorId(id));
     }
 
     @GetMapping("/categoria/{categoria}")
-    public ResponseEntity<List<Ficha>> listarPorCategoria(String categoria){
+    public ResponseEntity<List<FichaResponse>> listarPorCategoria(@PathVariable String categoria) {
         return ResponseEntity.ok(fichaService.listarPorCategoria(categoria));
     }
 
-    @GetMapping("/titulo/{titulo}")
-    public ResponseEntity<List<Ficha>> buscarPorTitulo(String titulo){
+    @GetMapping("/busca")
+    public ResponseEntity<List<FichaResponse>> buscarPorTitulo(@RequestParam String titulo) {
         return ResponseEntity.ok(fichaService.buscarPorTitulo(titulo));
     }
 
-    //admin
     @PostMapping
-    public ResponseEntity<Ficha> cadastrar(Ficha ficha){
-        return ResponseEntity.ok(fichaService.criarFicha(ficha));
-    }
-
-    //admin
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(Long id){
-        fichaService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<FichaResponse> cadastrar(@RequestBody FichaRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(fichaService.criarFicha(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Ficha> atualizar(@RequestBody Ficha fichaNova, Long id){
-        return ResponseEntity.ok(fichaService.atualizarFicha(fichaNova, id));
+    public ResponseEntity<FichaResponse> atualizar(@PathVariable Long id, @RequestBody FichaRequest request) {
+        return ResponseEntity.ok(fichaService.atualizarFicha(request, id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        fichaService.deletarPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }
