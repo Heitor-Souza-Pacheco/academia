@@ -36,8 +36,10 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/fichas/**").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/api/fichas/**").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/api/fichas/**").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/videos/**").authenticated()
+                                .requestMatchers(HttpMethod.POST, "/api/videos/**").hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/videos/**").hasAuthority("ADMIN")
                                 .anyRequest().authenticated()
-
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

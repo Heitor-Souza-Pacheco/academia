@@ -31,6 +31,10 @@ public class Exercicio implements Serializable {
     @JoinColumn(name = "ficha_id")
     private Ficha ficha;
 
+    @ManyToOne
+    @JoinColumn(name = "video_id")
+    private Video video;
+
     public long getSerialVersionUID() {
         return serialVersionUID;
     }
