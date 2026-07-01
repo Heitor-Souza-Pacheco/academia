@@ -9,10 +9,10 @@ import java.util.Objects;
 @Table(name = "tbl_exercicio")
 public class Exercicio implements Serializable {
 
-    private final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -34,10 +34,6 @@ public class Exercicio implements Serializable {
     @ManyToOne
     @JoinColumn(name = "video_id")
     private Video video;
-
-    public long getSerialVersionUID() {
-        return serialVersionUID;
-    }
 
     public Long getId() {
         return id;
@@ -79,21 +75,31 @@ public class Exercicio implements Serializable {
         this.ordem = ordem;
     }
 
-    public void setFicha(Ficha ficha){
+    public Ficha getFicha() {
+        return ficha;
+    }
+
+    public void setFicha(Ficha ficha) {
         this.ficha = ficha;
+    }
+
+    public Video getVideo() {
+        return video;
+    }
+
+    public void setVideo(Video video) {
+        this.video = video;
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Exercicio exercicio = (Exercicio) o;
-        return serialVersionUID == exercicio.serialVersionUID && series == exercicio.series && repeticoes == exercicio.repeticoes && ordem == exercicio.ordem && Objects.equals(id, exercicio.id) && Objects.equals(nome, exercicio.nome);
+        return Objects.equals(id, exercicio.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serialVersionUID, id, nome, series, repeticoes, ordem);
+        return Objects.hash(id);
     }
-
-
 }

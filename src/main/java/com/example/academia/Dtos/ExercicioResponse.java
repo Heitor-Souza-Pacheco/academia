@@ -7,15 +7,17 @@ public class ExercicioResponse {
     private int series;
     private int repeticoes;
     private int ordem;
+    private VideoResponse video;
 
     public ExercicioResponse() {}
 
-    public ExercicioResponse(Long id, String nome, int series, int repeticoes, int ordem) {
+    public ExercicioResponse(Long id, String nome, int series, int repeticoes, int ordem, VideoResponse video) {
         this.id = id;
         this.nome = nome;
         this.series = series;
         this.repeticoes = repeticoes;
         this.ordem = ordem;
+        this.video = video;
     }
 
     public Long getId() { return id; }
@@ -32,4 +34,7 @@ public class ExercicioResponse {
 
     public int getOrdem() { return ordem; }
     public void setOrdem(int ordem) { this.ordem = ordem; }
+
+    public VideoResponse getVideo() { return video; }
+    public void setVideo(VideoResponse video) { this.video = video; }
 }

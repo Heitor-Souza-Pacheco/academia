@@ -12,7 +12,7 @@ import java.util.Objects;
 @Table(name = "tbl_ficha")
 public class Ficha implements Serializable {
 
-    private final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,11 +33,7 @@ public class Ficha implements Serializable {
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Exercicio> exercicios = new ArrayList<>();
 
-    public Ficha(){
-    }
-
-    public long getSerialVersionUID() {
-        return serialVersionUID;
+    public Ficha() {
     }
 
     public Long getId() {
@@ -92,11 +88,11 @@ public class Ficha implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Ficha ficha = (Ficha) o;
-        return serialVersionUID == ficha.serialVersionUID && Objects.equals(id, ficha.id) && Objects.equals(titulo, ficha.titulo) && Objects.equals(descricao, ficha.descricao) && Objects.equals(categoria, ficha.categoria) && Objects.equals(data, ficha.data) && Objects.equals(exercicios, ficha.exercicios);
+        return Objects.equals(id, ficha.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serialVersionUID, id, titulo, descricao, categoria, data, exercicios);
+        return Objects.hash(id);
     }
 }

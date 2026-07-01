@@ -6,6 +6,7 @@ public class ExercicioRequest {
     private int series;
     private int repeticoes;
     private int ordem;
+    private Long videoId;
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
@@ -18,4 +19,7 @@ public class ExercicioRequest {
 
     public int getOrdem() { return ordem; }
     public void setOrdem(int ordem) { this.ordem = ordem; }
+
+    public Long getVideoId() { return videoId; }
+    public void setVideoId(Long videoId) { this.videoId = videoId; }
 }

@@ -4,9 +4,12 @@ import com.example.academia.Dtos.ExercicioRequest;
 import com.example.academia.Dtos.ExercicioResponse;
 import com.example.academia.Dtos.FichaRequest;
 import com.example.academia.Dtos.FichaResponse;
+import com.example.academia.Dtos.VideoResponse;
 import com.example.academia.Entities.Exercicio;
 import com.example.academia.Entities.Ficha;
+import com.example.academia.Entities.Video;
 import com.example.academia.Repositories.FichaRepository;
+import com.example.academia.Repositories.VideoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class FichaService {
 
     private final FichaRepository fichaRepository;
+    private final VideoRepository videoRepository;
 
     @Transactional
     public FichaResponse criarFicha(FichaRequest request) {
@@ -31,12 +35,7 @@ public class FichaService {
 
         if (request.getExercicios() != null) {
             for (ExercicioRequest exReq : request.getExercicios()) {
-                Exercicio exercicio = new Exercicio();
-                exercicio.setNome(exReq.getNome());
-                exercicio.setSeries(exReq.getSeries());
-                exercicio.setRepeticoes(exReq.getRepeticoes());
-                exercicio.setOrdem(exReq.getOrdem());
-                exercicio.setFicha(ficha);
+                Exercicio exercicio = criarExercicio(exReq, ficha);
                 ficha.getExercicios().add(exercicio);
             }
         }
@@ -86,12 +85,7 @@ public class FichaService {
         ficha.getExercicios().clear();
         if (request.getExercicios() != null) {
             for (ExercicioRequest exReq : request.getExercicios()) {
-                Exercicio exercicio = new Exercicio();
-                exercicio.setNome(exReq.getNome());
-                exercicio.setSeries(exReq.getSeries());
-                exercicio.setRepeticoes(exReq.getRepeticoes());
-                exercicio.setOrdem(exReq.getOrdem());
-                exercicio.setFicha(ficha);
+                Exercicio exercicio = criarExercicio(exReq, ficha);
                 ficha.getExercicios().add(exercicio);
             }
         }
@@ -100,15 +94,40 @@ public class FichaService {
         return toResponse(salva);
     }
 
+    private Exercicio criarExercicio(ExercicioRequest exReq, Ficha ficha) {
+        Exercicio exercicio = new Exercicio();
+        exercicio.setNome(exReq.getNome());
+        exercicio.setSeries(exReq.getSeries());
+        exercicio.setRepeticoes(exReq.getRepeticoes());
+        exercicio.setOrdem(exReq.getOrdem());
+        exercicio.setFicha(ficha);
+
+        if (exReq.getVideoId() != null) {
+            Video video = videoRepository.findById(exReq.getVideoId())
+                    .orElseThrow(() -> new RuntimeException("Vídeo não encontrado"));
+            exercicio.setVideo(video);
+        }
+
+        return exercicio;
+    }
+
     private FichaResponse toResponse(Ficha ficha) {
         List<ExercicioResponse> exercicios = ficha.getExercicios().stream()
-                .map(ex -> new ExercicioResponse(
-                        ex.getId(),
-                        ex.getNome(),
-                        ex.getSeries(),
-                        ex.getRepeticoes(),
-                        ex.getOrdem()
-                ))
+                .map(ex -> {
+                    VideoResponse videoResponse = null;
+                    if (ex.getVideo() != null) {
+                        Video v = ex.getVideo();
+                        videoResponse = new VideoResponse(v.getId(), v.getNome(), v.getVideoUrl(), v.getCategoria());
+                    }
+                    return new ExercicioResponse(
+                            ex.getId(),
+                            ex.getNome(),
+                            ex.getSeries(),
+                            ex.getRepeticoes(),
+                            ex.getOrdem(),
+                            videoResponse
+                    );
+                })
                 .collect(Collectors.toList());
 
         return new FichaResponse(
