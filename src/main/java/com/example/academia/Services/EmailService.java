@@ -16,7 +16,7 @@ public class EmailService {
         String link = "http://localhost:8080/auth/verify?token=" + token;
 
         SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setFrom("Academia Cranium");
+        mensagem.setFrom("Academia Cranium <heitor.pacheco@araujo.com.br>");
         mensagem.setTo(destinatario);
         mensagem.setSubject("Verifique seu email");
         mensagem.setText("Clique no link abaixo para verificar seu email:\n\n" + link + "\n\nSe você não criou esta conta, ignore este email.");
