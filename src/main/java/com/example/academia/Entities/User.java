@@ -29,6 +29,12 @@ public class User implements Serializable {
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean verficado = false;
+
+    @Column
+    private String tokenVerificacao;
+
     public User(){
     }
 
@@ -70,6 +76,22 @@ public class User implements Serializable {
 
     public Role getRole() {
         return role;
+    }
+
+    public boolean isVerficado() {
+        return verficado;
+    }
+
+    public void setVerficado(boolean verficado) {
+        this.verficado = verficado;
+    }
+
+    public String getTokenVerificacao() {
+        return tokenVerificacao;
+    }
+
+    public void setTokenVerificacao(String tokenVerificacao) {
+        this.tokenVerificacao = tokenVerificacao;
     }
 
     @Override

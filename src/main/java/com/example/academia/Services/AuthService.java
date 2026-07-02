@@ -29,6 +29,10 @@ public class AuthService {
 
         userRepository.save(user);
 
+        if (!user.isVerficado()){
+            throw new RuntimeException("Email não verificado");
+        }
+
         return jwtService.gerarToken(user);
     }
 
@@ -42,5 +46,13 @@ public class AuthService {
         }
 
         return jwtService.gerarToken(user);
+    }
+
+    public void verificarEmail(String token){
+        User user = userRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Token inválido"));
+        user.setVerficado(true);
+        user.setTokenVerificacao(null);
+        userRepository.save(user);
     }
 }
