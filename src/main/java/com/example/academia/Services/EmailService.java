@@ -12,14 +12,11 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
-    private String remetente;
-
     public void enviarEmailVerificacao(String destinatario, String token){
         String link = "http://localhost:8080/auth/verify?token=" + token;
 
         SimpleMailMessage mensagem = new SimpleMailMessage();
-        mensagem.setFrom(remetente);
+        mensagem.setFrom("Academia Cranium");
         mensagem.setTo(destinatario);
         mensagem.setSubject("Verifique seu email");
         mensagem.setText("Clique no link abaixo para verificar seu email:\n\n" + link + "\n\nSe você não criou esta conta, ignore este email.");
