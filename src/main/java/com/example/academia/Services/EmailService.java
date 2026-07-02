@@ -22,7 +22,7 @@ public class EmailService {
         mensagem.setFrom(remetente);
         mensagem.setTo(destinatario);
         mensagem.setSubject("Verifique seu email");
-        mensagem.setText("Clique no link para verificar seu email para academia" + link);
+        mensagem.setText("Clique no link abaixo para verificar seu email:\n\n" + link + "\n\nSe você não criou esta conta, ignore este email.");
 
         mailSender.send(mensagem);
     }
