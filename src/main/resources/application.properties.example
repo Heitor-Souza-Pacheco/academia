@@ -8,9 +8,9 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 
 # JPA / Hibernate
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=false
+spring.jpa.open-in-view=false
 
 # JWT
 jwt.secret=SUA_CHAVE_BASE64_AQUI
@@ -25,9 +25,11 @@ spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 
 # Assistente virtual (Groq - gratuito)
-# Gere uma chave gratis em https://console.groq.com/keys e exporte como GROQ_API_KEY,
-# ou cole aqui diretamente. Deixe em branco para desativar o assistente.
-# Modelos disponiveis: https://console.groq.com/docs/models (se o modelo for
-# descontinuado, o assistente avisa a mensagem de erro - basta trocar aqui).
 groq.api.key=${GROQ_API_KEY:}
 groq.model=llama-3.3-70b-versatile
+
+# Limites de request body
+server.tomcat.max-http-form-post-size=2MB
+server.tomcat.max-swallow-size=2MB
+spring.servlet.multipart.max-file-size=2MB
+spring.servlet.multipart.max-request-size=2MB

@@ -3,6 +3,7 @@ package com.example.academia.Controllers;
 import com.example.academia.Dtos.ChatRequest;
 import com.example.academia.Dtos.ChatResponse;
 import com.example.academia.Services.AssistenteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class AssistenteController {
     private final AssistenteService assistenteService;
 
     @PostMapping
-    public ResponseEntity<?> conversar(@RequestBody ChatRequest request) {
+    public ResponseEntity<?> conversar(@Valid @RequestBody ChatRequest request) {
         try {
             String resposta = assistenteService.responder(request.getMensagens());
             return ResponseEntity.ok(new ChatResponse(resposta));

@@ -23,6 +23,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
+    private final RateLimitFilter rateLimitFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -40,8 +41,10 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/videos/**").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.PUT, "/api/videos/**").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/api/videos/**").hasAuthority("ADMIN")
+                                .requestMatchers("/api/assistente/**").authenticated()
                                 .anyRequest().authenticated()
                 )
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -54,12 +57,18 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Libera qualquer origem local de desenvolvimento (Live Server, Vite, etc.).
-        config.setAllowedOriginPatterns(List.of("*"));
+        // Origens permitidas — ajuste para seus domínios em produção.
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "http://localhost:5501",
+                "http://127.0.0.1:5501"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
+        config.setMaxAge(3600L); // Cache preflight por 1 hora
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

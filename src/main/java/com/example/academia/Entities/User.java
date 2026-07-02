@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -34,6 +35,9 @@ public class User implements Serializable {
 
     @Column
     private String tokenVerificacao;
+
+    @Column
+    private LocalDateTime tokenExpiracao;
 
     public User(){
     }
@@ -92,6 +96,14 @@ public class User implements Serializable {
 
     public void setTokenVerificacao(String tokenVerificacao) {
         this.tokenVerificacao = tokenVerificacao;
+    }
+
+    public LocalDateTime getTokenExpiracao() {
+        return tokenExpiracao;
+    }
+
+    public void setTokenExpiracao(LocalDateTime tokenExpiracao) {
+        this.tokenExpiracao = tokenExpiracao;
     }
 
     @Override

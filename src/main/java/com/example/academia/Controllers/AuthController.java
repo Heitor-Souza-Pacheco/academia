@@ -3,6 +3,7 @@ package com.example.academia.Controllers;
 import com.example.academia.Dtos.LoginRequest;
 import com.example.academia.Dtos.RegisterRequest;
 import com.example.academia.Services.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> registrar(@RequestBody RegisterRequest request){
+    public ResponseEntity<String> registrar(@Valid @RequestBody RegisterRequest request){
         String mensagem = authService.registrar(request.getNome(), request.getEmail(), request.getSenha());
         return ResponseEntity.status(HttpStatus.CREATED).body(mensagem);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest request){
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request){
         String token = authService.login(request.getEmail(), request.getSenha());
         return ResponseEntity.ok(token);
     }

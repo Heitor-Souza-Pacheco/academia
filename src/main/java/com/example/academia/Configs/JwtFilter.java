@@ -15,12 +15,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    private JwtService jwtService;
-    private UserRepository userRepository;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     public JwtFilter(JwtService jwtService, UserRepository userRepository) {
         this.jwtService = jwtService;
@@ -32,27 +33,35 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String token = authHeader.substring(7);
-        String email = jwtService.extrairEmail(token);
+        try {
+            String token = authHeader.substring(7);
+            String email = jwtService.extrairEmail(token);
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                Optional<User> optionalUser = userRepository.findByEmail(email);
+                if (optionalUser.isEmpty()) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
 
-            if (jwtService.isTokenValido(token, user)){
+                User user = optionalUser.get();
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        user, null, List.of(new SimpleGrantedAuthority(user.getRole().name()))
-                );
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.isTokenValido(token, user)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            user, null, List.of(new SimpleGrantedAuthority(user.getRole().name()))
+                    );
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (Exception e) {
+            // Token malformado, expirado ou inválido — simplesmente não autentica.
+            // O Spring Security vai retornar 401/403 conforme as regras do SecurityConfig.
         }
 
         filterChain.doFilter(request, response);

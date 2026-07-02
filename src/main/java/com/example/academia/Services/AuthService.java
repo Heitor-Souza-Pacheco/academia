@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -34,6 +35,7 @@ public class AuthService {
         user.setRole(Role.USER);
         user.setVerficado(false);
         user.setTokenVerificacao(tokenVerificacao);
+        user.setTokenExpiracao(LocalDateTime.now().plusHours(24));
 
         userRepository.save(user);
 
@@ -61,10 +63,17 @@ public class AuthService {
 
     public void verificarEmail(String token) {
         User user = userRepository.findByTokenVerificacao(token)
-                .orElseThrow(() -> new RuntimeException("Token inválido"));
+                .orElseThrow(() -> new RuntimeException("Token inválido ou já utilizado"));
+
+        if (user.getTokenExpiracao() != null && user.getTokenExpiracao().isBefore(LocalDateTime.now())) {
+            // Token expirado — remove o usuário não verificado pra permitir novo cadastro
+            userRepository.delete(user);
+            throw new RuntimeException("Link de verificação expirado. Faça o cadastro novamente.");
+        }
 
         user.setVerficado(true);
         user.setTokenVerificacao(null);
+        user.setTokenExpiracao(null);
         userRepository.save(user);
     }
 }
