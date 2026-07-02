@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -14,6 +16,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     public String registrar(String nome, String email, String senha) {
 
@@ -21,19 +24,23 @@ public class AuthService {
             throw new RuntimeException("Email já cadastrado");
         }
 
+        // Gera token de verificação
+        String tokenVerificacao = UUID.randomUUID().toString();
+
         User user = new User();
         user.setNome(nome);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(senha));
         user.setRole(Role.USER);
+        user.setVerficado(false);
+        user.setTokenVerificacao(tokenVerificacao);
 
         userRepository.save(user);
 
-        if (!user.isVerficado()){
-            throw new RuntimeException("Email não verificado");
-        }
+        // Envia email de verificação
+        emailService.enviarEmailVerificacao(email, tokenVerificacao);
 
-        return jwtService.gerarToken(user);
+        return "Verifique seu email para ativar sua conta.";
     }
 
     public String login(String email, String senha) {
@@ -45,12 +52,17 @@ public class AuthService {
             throw new RuntimeException("Email ou senha inválidos");
         }
 
+        if (!user.isVerficado()) {
+            throw new RuntimeException("Email não verificado. Verifique sua caixa de entrada.");
+        }
+
         return jwtService.gerarToken(user);
     }
 
-    public void verificarEmail(String token){
-        User user = userRepository.findByToken(token)
+    public void verificarEmail(String token) {
+        User user = userRepository.findByTokenVerificacao(token)
                 .orElseThrow(() -> new RuntimeException("Token inválido"));
+
         user.setVerficado(true);
         user.setTokenVerificacao(null);
         userRepository.save(user);

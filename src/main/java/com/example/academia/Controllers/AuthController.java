@@ -17,8 +17,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registrar(@RequestBody RegisterRequest request){
-        String token = authService.registrar(request.getNome(), request.getEmail(), request.getSenha());
-        return ResponseEntity.status(HttpStatus.CREATED).body(token);
+        String mensagem = authService.registrar(request.getNome(), request.getEmail(), request.getSenha());
+        return ResponseEntity.status(HttpStatus.CREATED).body(mensagem);
     }
 
     @PostMapping("/login")
