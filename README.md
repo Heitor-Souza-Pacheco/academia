@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/academiabanner.jpg" width="100%" alt="Academia API">
+  <img src="./assets/academiaapibanner.png" width="100%" alt="Academia API">
 </p>
 
 <p align="center">
